@@ -4,7 +4,7 @@ import React from "react";
 
 const Footer = () => {
   return (
-    <div className="max-w-7xl px-5 z-50 mx-auto flex items-center flex-wrap md:justify-between justify-center md:space-y-0 space-y-3">
+    <footer className="max-w-7xl px-5 z-50 mx-auto flex items-center flex-wrap md:justify-between justify-center md:space-y-0 space-y-3">
       <Image
         src={"/logo-black.svg"}
         alt=""
@@ -19,7 +19,7 @@ const Footer = () => {
         height={130}
         className="hidden dark:block "
       />
-      <div className="flex items-center flex-wrap gap-2">
+      <div className="flex items-center justify-center flex-wrap gap-2">
         <Button variant={"link"}>
             Privacy Policy
         </Button>
@@ -27,7 +27,7 @@ const Footer = () => {
             Terms of Service
         </Button>
       </div>
-    </div>
+    </footer>
   );
 };
 
