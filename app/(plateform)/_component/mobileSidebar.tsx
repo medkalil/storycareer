@@ -13,7 +13,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-const sidebarLinks = [
+export const sidebarLinks = [
   { label: "My Stories", href: "/story", icon: Book },
   { label: "My saves", href: "/saves", icon: Heart },
 ];
