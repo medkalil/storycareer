@@ -17,7 +17,7 @@ const StoryPage = async () => {
       createdAT: "desc" 
     },
     where: { 
-      userId: userId 
+      userId: userId! 
     },
   });
 
