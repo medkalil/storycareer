@@ -20,6 +20,10 @@ export const columns: ColumnDef<Story>[] = [
     header: "Title",
   },
   {
+    accessorKey: "story",
+    header: "Story",
+  },
+  {
     accessorKey: "createdAT",
     header: "Created At",
     cell: ({ row }) => {

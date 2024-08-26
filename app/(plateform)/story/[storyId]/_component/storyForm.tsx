@@ -1,5 +1,6 @@
 "use client";
 
+import { Story } from "@prisma/client";
 import React from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,42 +18,48 @@ import {
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
-import { Loader } from "lucide-react";
+import { Loader, Pencil } from "lucide-react";
 import axios from "axios";
 import { toast } from "sonner";
+import { Textarea } from "@/components/ui/textarea";
+
+interface Props {
+  initialData: Story;
+}
 
 const formSchema = z.object({
-  title: z.string().min(2, { message: "Title is Required!!!" }).max(50),
+  story: z.string().min(30, { message: "Story is Required!!!" }).max(5000),
 });
 
-const NewStorypage = () => {
+const StoryForm = ({ initialData }: Props) => {
+  const router = useRouter();
+
+  const [isEditing, setIsEditing] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-  const { userId } = useAuth();
-  const router = useRouter();
+  const toggleEdit = () => setIsEditing((current) => !current);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "",
+        story: initialData.story || "",
     },
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       setIsSubmitting(true);
-      toast("Story is creating...");
+      toast("Story is updating...");
 
-      const res = await axios.post("/api/story", {
+      const res = await axios.patch(`/api/story/${initialData.id}`, {
         ...values,
-        userId,
       });
 
       if (res.status == 201) {
-        toast("Story is created", {
+        toast("Story is updated", {
           className: "bg-emerald-500 text-white",
         });
-        router.push(`/story/${res.data.id}`)
+        toggleEdit()
         router.refresh();
       }
     } catch (error) {
@@ -65,24 +72,31 @@ const NewStorypage = () => {
   }
 
   return (
-    <div className="flex items-center justify-center h-full w-full">
-      <div className="flex flex-col space-x-10">
-        <div>
-          <h1 className="text-2xl font-semibold">Give Your Story a Title</h1>
-          <p className="text-sm text-muted-foreground">
-            Name Your Story don&apos;t worry you can change it later
-          </p>
-        </div>
+    <div className="border border-secondary rounded-md p-4 bg-secondary w-80">
+      <div className="flex items-center justify-between font-medium text-primary">
+        Story
+        <Button variant={"ghost"} type="button" onClick={toggleEdit}>
+          {!isEditing ? (
+            <>
+              <Pencil className="h-4 w-4 mr-2" /> Edit Story
+            </>
+          ) : (
+            <>Cancel</>
+          )}
+        </Button>
+      </div>
+      {!isEditing ? (
+        <p className="text-sm mt-2 text-primary"> {initialData.story || "No Story"} </p>
+      ) : (
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
             <FormField
               control={form.control}
-              name="title"
+              name="story"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>title</FormLabel>
                   <FormControl>
-                    <Input
+                    <Textarea
                       placeholder="(ex: today i deplouerd my first project)"
                       {...field}
                     />
@@ -93,13 +107,13 @@ const NewStorypage = () => {
             />
             <Button disabled={isSubmitting} type="submit">
               {isSubmitting && <Loader className="mr-2 w-5 h-5 animate-spin" />}
-              Create
+              Update
             </Button>
           </form>
         </Form>
-      </div>
+      )}
     </div>
   );
 };
 
-export default NewStorypage;
+export default StoryForm;
