@@ -12,17 +12,18 @@ export async function DELETE(
     return NextResponse.json("Unauthorized", { status: 500 });
   }
 
-  const existingStory = await prisma.story.findUnique({
+  const existingSave = await prisma.save.findUnique({
     where: {
       id: params.saveId,
     },
   });
-
-  if (!existingStory) {
+  console.log("saveId", params.saveId)
+  console.log("existing save", existingSave)
+  if (!existingSave) {
     return NextResponse.json("Save not found", { status: 404 });
   }
 
-  const deletedSave = await prisma.story.delete({
+  const deletedSave = await prisma.save.delete({
     where: {
       id: params.saveId,
     },

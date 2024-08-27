@@ -1,5 +1,7 @@
-import React from "react";
+import { Separator } from "@/components/ui/separator";
 import prisma from "@/prisma/client";
+import { auth } from "@clerk/nextjs/server";
+import React from "react";
 import {
   Card,
   CardContent,
@@ -10,39 +12,33 @@ import {
 } from "@/components/ui/card";
 import Image from "next/image";
 import { ArrowRight, ImageIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import ReadStory from "@/components/readStory";
-import SaveForm from "./_component/saveForm";
+import { Button } from "@/components/ui/button";
+import SaveForm from "@/app/(landingpage)/stories/_component/saveForm";
+import RemoveSave from "./_component/removeSave";
 
-const StoriesPage = async () => {
-  const stories = await prisma.story.findMany({
-    orderBy: {
-      createdAT: "desc",
-    },
-  });
+const SavesPage = async () => {
+  const { userId } = auth();
 
   const saves = await prisma.save.findMany({
     orderBy: {
       createdAT: "desc",
     },
+    where: {
+      userId: userId!,
+    },
+    include: {
+      story: true,
+    },
   });
 
   return (
-    <div className="py-32 h-full">
-      <div className="flex flex-col space-x-3">
-        <h1 className="text-3xl max-w-2xl md:text-5xl font-bold">
-          Explore Career stories
-        </h1>
-        <p className="text-muted-foreground max-w-lg">
-          welcome to the heart of StoeyCarrer, where real stories from
-          professionals across varios fields come alive. Dive into these
-          narratives to find inspiration, learn from others experiences, and see
-          the diverse paths peaple have taken in their careers.
-        </p>
-      </div>
-      <div className="grid md:grid-cols-4 sm:grid-cols-2 mt-10 gap-5">
-        {stories.map((story) => (
-          <Card key={story.id}>
+    <div className="flex flex-col space-y-5 w-full">
+      <h1 className="font-semibold">My saves</h1>
+      <Separator />
+      <div className="grid md:grid-cols-3 sm:grid-cols-2 gap-5">
+        {saves.map(({ story, id }) => (
+          <Card key={id}>
             {story.image ? (
               <div className="w-full h-52 aspect-video relative rounded-md">
                 <Image
@@ -70,13 +66,24 @@ const StoriesPage = async () => {
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </ReadStory>
-              <SaveForm story={story} saves={saves}/>
+                <RemoveSave saveId={id} />
             </CardFooter>
           </Card>
         ))}
       </div>
+      {saves.length < 1 && (
+        <div className="flex items-center justify-center">
+            <Image 
+              src={"/empty.svg"}
+              alt={"empty"}
+              width={500}
+              height={500}
+              // className="h-5 w-5"
+            />
+        </div>
+      )}
     </div>
   );
 };
 
-export default StoriesPage;
+export default SavesPage;
